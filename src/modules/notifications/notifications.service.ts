@@ -24,6 +24,7 @@ export class NotificationsService {
     });
 
     await this.notificationsQueue.add('send-notification', {
+      notificationId: notification.id,
       userId,
       type,
       payload,
