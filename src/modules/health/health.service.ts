@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../database/prisma.service';
-import { RedisService } from '../../infrastructure/redis/redis.service';
+import { PrismaService } from '@/database/prisma.service';
+import { RedisService } from '@/infrastructure/redis/redis.service';
 
 @Injectable()
 export class HealthService {

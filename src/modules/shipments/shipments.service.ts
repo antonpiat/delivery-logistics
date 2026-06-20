@@ -4,10 +4,10 @@ import {
   ShipmentStatus as PrismaShipmentStatus,
 } from '@prisma/client';
 import { randomBytes } from 'crypto';
-import { PrismaService } from '../../database/prisma.service';
+import { PrismaService } from '@/database/prisma.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto';
-import { ShipmentStatus } from '../../common/enums/shipment-status.enum';
+import { ShipmentStatus } from '@/common/enums/shipment-status.enum';
 
 @Injectable()
 export class ShipmentsService {

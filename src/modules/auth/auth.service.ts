@@ -5,8 +5,8 @@ import { UsersService } from '../users/users.service';
 import { CompaniesService } from '../companies/companies.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { Role } from '../../common/enums/role.enum';
-import { JwtPayload } from '../../common/interfaces/jwt-payload.interface';
+import { Role } from '@/common/enums/role.enum';
+import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {

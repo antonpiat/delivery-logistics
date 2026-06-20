@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ShipmentStatus } from '../../../common/enums/shipment-status.enum';
+import { ShipmentStatus } from '@/common/enums/shipment-status.enum';
 
 export class UpdateShipmentStatusDto {
   @ApiProperty({ enum: ShipmentStatus })

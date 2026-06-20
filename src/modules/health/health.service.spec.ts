@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthService } from './health.service';
-import { PrismaService } from '../../database/prisma.service';
-import { RedisService } from '../../infrastructure/redis/redis.service';
+import { PrismaService } from '@/database/prisma.service';
+import { RedisService } from '@/infrastructure/redis/redis.service';
 
 describe('HealthService', () => {
   let service: HealthService;
