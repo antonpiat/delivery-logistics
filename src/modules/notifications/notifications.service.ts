@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../../database/prisma.service';
-import { NOTIFICATIONS_QUEUE } from '../../infrastructure/queue/queue.constants';
+import { PrismaService } from '@/database/prisma.service';
+import { NOTIFICATIONS_QUEUE } from '@/infrastructure/queue/queue.constants';
 import { NotificationJobData } from './notifications.processor';
 
 @Injectable()

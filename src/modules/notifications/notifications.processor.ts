@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { NOTIFICATIONS_QUEUE } from '../../infrastructure/queue/queue.constants';
+import { NOTIFICATIONS_QUEUE } from '@/infrastructure/queue/queue.constants';
 
 export interface NotificationJobData {
   userId: string;

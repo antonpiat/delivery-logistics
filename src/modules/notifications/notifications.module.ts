@@ -3,7 +3,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { NotificationsProcessor } from './notifications.processor';
-import { NOTIFICATIONS_QUEUE } from '../../infrastructure/queue/queue.constants';
+import { NOTIFICATIONS_QUEUE } from '@/infrastructure/queue/queue.constants';
 
 @Module({
   imports: [
