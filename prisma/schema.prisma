@@ -37,19 +37,24 @@ model Company {
 }
 
 model User {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  passwordHash String
-  firstName    String?
-  lastName     String?
-  role         Role
-  companyId    String?
-  company      Company?       @relation(fields: [companyId], references: [id])
-  driver       Driver?
-  shipments    Shipment[]     @relation("CustomerShipments")
-  notifications Notification[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id                       String         @id @default(cuid())
+  email                    String         @unique
+  passwordHash             String
+  firstName                String?
+  lastName                 String?
+  role                     Role
+  companyId                String?
+  company                  Company?       @relation(fields: [companyId], references: [id])
+  emailVerified            Boolean        @default(false)
+  emailVerificationToken   String?        @unique
+  emailVerificationExpires DateTime?
+  passwordResetToken       String?        @unique
+  passwordResetExpires     DateTime?
+  driver                   Driver?
+  shipments                Shipment[]     @relation("CustomerShipments")
+  notifications            Notification[]
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
 
   @@index([companyId])
   @@index([role])

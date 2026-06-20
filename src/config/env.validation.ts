@@ -18,4 +18,11 @@ export const envValidationSchema = Joi.object({
   SUPABASE_SERVICE_ROLE_KEY: Joi.string().required(),
   SUPABASE_STORAGE_BUCKET: Joi.string().default('delivery-assets'),
   CORS_ORIGIN: Joi.string().default('http://localhost:3000'),
+  APP_URL: Joi.string().default('http://localhost:3000'),
+  FRONTEND_URL: Joi.string().optional(),
+  MAIL_HOST: Joi.string().optional(),
+  MAIL_PORT: Joi.number().default(2525),
+  MAIL_USER: Joi.string().optional(),
+  MAIL_PASSWORD: Joi.string().optional(),
+  MAIL_FROM: Joi.string().default('Delivery Logistics <noreply@example.com>'),
 }).or('REDIS_URL', 'REDIS_HOST');

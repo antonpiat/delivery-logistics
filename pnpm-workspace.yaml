@@ -1,5 +1,7 @@
-onlyBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - bcrypt
-  - prisma
+allowBuilds:
+  '@prisma/engines': true
+  '@scarf/scarf': false
+  bcrypt: true
+  msgpackr-extract: true
+  prisma: true
+  unrs-resolver: false
