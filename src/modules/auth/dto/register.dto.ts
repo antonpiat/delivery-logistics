@@ -7,9 +7,11 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '@/common/enums/role.enum';
+import { NormalizeEmail } from '@/common/decorators/normalize-email.decorator';
 
 export class RegisterDto {
   @ApiProperty({ example: 'user@example.com' })
+  @NormalizeEmail()
   @IsEmail()
   email: string;
 

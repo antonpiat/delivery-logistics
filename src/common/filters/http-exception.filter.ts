@@ -27,21 +27,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.getResponse()
         : 'Internal server error';
 
-    const message =
-      typeof exceptionResponse === 'string'
-        ? exceptionResponse
-        : ((exceptionResponse as { message?: string | string[] }).message ??
-          'Internal server error');
+    const body: Record<string, unknown> = {
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    };
+
+    if (typeof exceptionResponse === 'string') {
+      body.message = exceptionResponse;
+    } else if (typeof exceptionResponse === 'object' && exceptionResponse) {
+      const { message, error: _error, statusCode: _status, ...rest } =
+        exceptionResponse as Record<string, unknown>;
+      body.message = message ?? 'Internal server error';
+      Object.assign(body, rest);
+    } else {
+      body.message = 'Internal server error';
+    }
 
     if (status === 500) {
       this.logger.error(exception);
     }
 
-    response.status(status).json({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message,
-    });
+    response.status(status).json(body);
   }
 }

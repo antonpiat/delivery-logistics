@@ -19,13 +19,13 @@ async function main() {
     update: {},
     create: {
       id: 'seed-company-1',
-      name: 'Acme Logistics',
+      name: 'Leo Logistics',
     },
   });
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@leo.com' },
-    update: {},
+    update: { emailVerified: true },
     create: {
       email: 'admin@leo.com',
       passwordHash,
@@ -33,12 +33,13 @@ async function main() {
       lastName: 'User',
       role: Role.ADMIN,
       companyId: company.id,
+      emailVerified: true,
     },
   });
 
   const driverUser = await prisma.user.upsert({
     where: { email: 'driver@leo.com' },
-    update: {},
+    update: { emailVerified: true },
     create: {
       email: 'driver@leo.com',
       passwordHash,
@@ -46,6 +47,7 @@ async function main() {
       lastName: 'Driver',
       role: Role.DRIVER,
       companyId: company.id,
+      emailVerified: true,
       driver: {
         create: {
           companyId: company.id,
@@ -58,13 +60,14 @@ async function main() {
 
   const customer = await prisma.user.upsert({
     where: { email: 'customer@leo.com' },
-    update: {},
+    update: { emailVerified: true },
     create: {
       email: 'customer@leo.com',
       passwordHash,
       firstName: 'Jane',
       lastName: 'Customer',
       role: Role.CUSTOMER,
+      emailVerified: true,
     },
   });
 

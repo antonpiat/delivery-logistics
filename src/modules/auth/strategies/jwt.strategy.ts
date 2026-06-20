@@ -24,6 +24,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException();
     }
 
+    if (!user.emailVerified) {
+      throw new UnauthorizedException('Email not verified');
+    }
+
     return {
       sub: user.id,
       email: user.email,

@@ -1,12 +1,23 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { CompaniesService } from '../companies/companies.service';
+import { MailService } from '@/infrastructure/mail/mail.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Role } from '@/common/enums/role.enum';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
+import { generateToken, hashToken } from '@/common/utils/token.util';
+
+const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
+const PASSWORD_RESET_EXPIRY_HOURS = 1;
 
 @Injectable()
 export class AuthService {
@@ -14,12 +25,13 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly companiesService: CompaniesService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(dto: RegisterDto) {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
-      throw new UnauthorizedException('Email already registered');
+      throw new ConflictException('Email already registered');
     }
 
     let companyId = dto.companyId;
@@ -32,16 +44,29 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.usersService.create({
+    const verificationToken = generateToken();
+    const verificationExpires = this.expiresInHours(
+      VERIFICATION_TOKEN_EXPIRY_HOURS,
+    );
+
+    await this.usersService.create({
       email: dto.email,
       passwordHash,
       role: dto.role,
       firstName: dto.firstName,
       lastName: dto.lastName,
       companyId,
+      emailVerified: false,
+      emailVerificationToken: hashToken(verificationToken),
+      emailVerificationExpires: verificationExpires,
     });
 
-    return this.buildAuthResponse(user);
+    await this.sendVerificationOrFail(dto.email, verificationToken);
+
+    return {
+      message:
+        'Registration successful. Please check your email to verify your account.',
+    };
   }
 
   async login(dto: LoginDto) {
@@ -55,7 +80,163 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!user.emailVerified) {
+      throw new UnauthorizedException({
+        message:
+          'Email not verified. Use POST /auth/resend-verification to receive a new verification link.',
+        emailVerificationRequired: true,
+      });
+    }
+
     return this.buildAuthResponse(user);
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.usersService.findByVerificationToken(
+      hashToken(token),
+    );
+    if (!user) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    if (user.emailVerified) {
+      return {
+        message: 'Email already verified',
+        ...this.buildAuthResponse(user),
+      };
+    }
+
+    if (
+      user.emailVerificationExpires &&
+      user.emailVerificationExpires < new Date()
+    ) {
+      throw new BadRequestException(
+        'Verification token has expired. Use POST /auth/resend-verification to receive a new link.',
+      );
+    }
+
+    const verifiedUser = await this.usersService.markEmailVerified(user.id);
+
+    return {
+      message: 'Email verified successfully',
+      ...this.buildAuthResponse(verifiedUser),
+    };
+  }
+
+  async resendVerification(email: string) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user || user.emailVerified) {
+      return this.genericEmailSentMessage();
+    }
+
+    const verificationToken = generateToken();
+    const verificationExpires = this.expiresInHours(
+      VERIFICATION_TOKEN_EXPIRY_HOURS,
+    );
+
+    await this.usersService.setVerificationToken(
+      user.id,
+      hashToken(verificationToken),
+      verificationExpires,
+    );
+    await this.sendVerificationOrFail(email, verificationToken);
+
+    return this.genericEmailSentMessage();
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (user) {
+      if (!user.emailVerified) {
+        await this.resendVerification(email);
+      } else {
+        const resetToken = generateToken();
+        const resetExpires = this.expiresInHours(PASSWORD_RESET_EXPIRY_HOURS);
+
+        await this.usersService.setPasswordResetToken(
+          user.id,
+          hashToken(resetToken),
+          resetExpires,
+        );
+        await this.sendPasswordResetOrFail(email, resetToken);
+      }
+    }
+
+    return {
+      message:
+        'If an account exists with this email, instructions have been sent.',
+    };
+  }
+
+  async resetPassword(token: string, password: string) {
+    const user = await this.usersService.findByPasswordResetToken(
+      hashToken(token),
+    );
+    if (!user) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (!user.emailVerified) {
+      throw new BadRequestException(
+        'Email must be verified before resetting password.',
+      );
+    }
+
+    if (user.passwordResetExpires && user.passwordResetExpires < new Date()) {
+      throw new BadRequestException(
+        'Reset token has expired. Use POST /auth/forgot-password to request a new link.',
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const updatedUser = await this.usersService.updatePassword(
+      user.id,
+      passwordHash,
+    );
+
+    return {
+      message: 'Password reset successfully',
+      ...this.buildAuthResponse(updatedUser),
+    };
+  }
+
+  private async sendVerificationOrFail(
+    email: string,
+    token: string,
+  ): Promise<void> {
+    try {
+      await this.mailService.sendVerificationEmail(email, token);
+    } catch {
+      throw new ServiceUnavailableException(
+        'Unable to send verification email. Please try again later.',
+      );
+    }
+  }
+
+  private async sendPasswordResetOrFail(
+    email: string,
+    token: string,
+  ): Promise<void> {
+    try {
+      await this.mailService.sendPasswordResetEmail(email, token);
+    } catch {
+      throw new ServiceUnavailableException(
+        'Unable to send password reset email. Please try again later.',
+      );
+    }
+  }
+
+  private expiresInHours(hours: number): Date {
+    return new Date(Date.now() + hours * 60 * 60 * 1000);
+  }
+
+  private genericEmailSentMessage() {
+    return {
+      message:
+        'If an unverified account exists with this email, a verification link has been sent.',
+    };
   }
 
   private buildAuthResponse(user: {

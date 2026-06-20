@@ -4,6 +4,7 @@ import { DatabaseModule } from './database/database.module';
 import { RedisModule } from './infrastructure/redis/redis.module';
 import { QueueModule } from './infrastructure/queue/queue.module';
 import { StorageModule } from './infrastructure/storage/storage.module';
+import { MailModule } from './infrastructure/mail/mail.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -21,6 +22,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     RedisModule,
     QueueModule,
     StorageModule,
+    MailModule,
     HealthModule,
     AuthModule,
     UsersModule,
