@@ -12,6 +12,43 @@ Backend logistics system for managing deliveries, drivers, and real-time shipmen
 - **Storage:** Supabase Storage
 - **CI:** GitHub Actions
 
+## Target architecture
+
+```mermaid
+flowchart TB
+  subgraph clients [Clients]
+    Admin[Admin]
+    Driver[Driver]
+    Customer[Customer]
+  end
+
+  subgraph api [NestJS API]
+    REST[REST Controllers]
+    WS[TrackingGateway WebSocket]
+    Auth[JWT Guards + RBAC]
+  end
+
+  subgraph infra [Infrastructure]
+    Prisma[PrismaService]
+    Redis[Redis Cache + BullMQ]
+    SupaStore[Supabase Storage]
+  end
+
+  subgraph data [Data]
+    PG[(Supabase PostgreSQL)]
+  end
+
+  clients --> REST
+  clients --> WS
+  REST --> Auth
+  WS --> Auth
+  Auth --> Prisma
+  REST --> Prisma
+  WS --> Redis
+  REST --> Redis
+  Prisma --> PG
+```
+
 ## Prerequisites
 
 - Node.js 20+

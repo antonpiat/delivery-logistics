@@ -56,7 +56,15 @@ export class ShipmentsController {
   @Patch(':id/status')
   @Roles(Role.ADMIN, Role.DRIVER)
   @ApiOperation({ summary: 'Update shipment status' })
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateShipmentStatusDto) {
-    return this.shipmentsService.updateStatus(id, dto);
+  updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateShipmentStatusDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.shipmentsService.updateStatus(id, dto, {
+      role: user.role as Role,
+      userId: user.sub,
+      companyId: user.companyId,
+    });
   }
 }

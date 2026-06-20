@@ -78,6 +78,28 @@ export class MailService implements OnModuleInit {
     this.logger.log(`Password reset email sent to ${to}`);
   }
 
+  async sendNotificationEmail(
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<void> {
+    if (!this.transporter) {
+      this.logger.warn(
+        `Skipping notification email to ${to} — mail not configured`,
+      );
+      return;
+    }
+
+    await this.transporter.sendMail({
+      from: this.configService.getOrThrow<string>('mail.from'),
+      to,
+      subject,
+      html,
+    });
+
+    this.logger.log(`Notification email sent to ${to}`);
+  }
+
   private ensureTransporter(): void {
     if (!this.transporter) {
       throw new ServiceUnavailableException('Email service is not configured');
