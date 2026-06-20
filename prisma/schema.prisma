@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  DRIVER
+  CUSTOMER
+}
+
+enum ShipmentStatus {
+  PENDING
+  ASSIGNED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum DriverAvailability {
+  OFFLINE
+  AVAILABLE
+  BUSY
+}
+
+model Company {
+  id        String     @id @default(cuid())
+  name      String
+  users     User[]
+  drivers   Driver[]
+  shipments Shipment[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  role         Role
+  companyId    String?
+  company      Company?       @relation(fields: [companyId], references: [id])
+  driver       Driver?
+  shipments    Shipment[]     @relation("CustomerShipments")
+  notifications Notification[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([companyId])
+  @@index([role])
+}
+
+model Driver {
+  id           String             @id @default(cuid())
+  userId       String             @unique
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId    String
+  company      Company            @relation(fields: [companyId], references: [id])
+  phone        String?
+  vehicleInfo  String?
+  availability DriverAvailability @default(OFFLINE)
+  currentLat   Float?
+  currentLng   Float?
+  shipments    Shipment[]
+  locationLogs LocationUpdate[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([companyId])
+  @@index([availability])
+}
+
+model Shipment {
+  id              String                  @id @default(cuid())
+  trackingCode    String                  @unique
+  companyId       String
+  company         Company                 @relation(fields: [companyId], references: [id])
+  customerId      String
+  customer        User                    @relation("CustomerShipments", fields: [customerId], references: [id])
+  driverId        String?
+  driver          Driver?                 @relation(fields: [driverId], references: [id])
+  status          ShipmentStatus          @default(PENDING)
+  pickupAddress   String
+  deliveryAddress String
+  notes           String?
+  assignedAt      DateTime?
+  deliveredAt     DateTime?
+  locationLogs    LocationUpdate[]
+  statusHistory   ShipmentStatusHistory[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@index([companyId])
+  @@index([customerId])
+  @@index([driverId])
+  @@index([status])
+  @@index([trackingCode])
+}
+
+model LocationUpdate {
+  id         String   @id @default(cuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  driverId   String
+  driver     Driver   @relation(fields: [driverId], references: [id])
+  lat        Float
+  lng        Float
+  recordedAt DateTime @default(now())
+
+  @@index([shipmentId])
+  @@index([driverId])
+  @@index([recordedAt])
+}
+
+model ShipmentStatusHistory {
+  id         String          @id @default(cuid())
+  shipmentId String
+  shipment   Shipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  fromStatus ShipmentStatus?
+  toStatus   ShipmentStatus
+  changedAt  DateTime        @default(now())
+
+  @@index([shipmentId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  payload   Json
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+}
