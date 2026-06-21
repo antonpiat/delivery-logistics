@@ -4,10 +4,15 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { RedisIoAdapter } from './infrastructure/websocket/redis-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  const redisIoAdapter = new RedisIoAdapter(app);
+  await redisIoAdapter.connect();
+  app.useWebSocketAdapter(redisIoAdapter);
 
   const apiPrefix = configService.get<string>('app.apiPrefix') ?? 'api/v1';
   const corsOrigin = configService.get<string>('app.corsOrigin') ?? '*';
@@ -23,6 +28,12 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableShutdownHooks();
+
+  const originalClose = app.close.bind(app);
+  app.close = async () => {
+    await redisIoAdapter.disconnect();
+    return originalClose();
+  };
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Delivery Logistics API')

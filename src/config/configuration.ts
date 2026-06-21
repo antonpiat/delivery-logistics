@@ -22,6 +22,7 @@ export const redisConfig = registerAs('redis', () => ({
     : undefined,
   password: process.env.REDIS_PASSWORD,
   tls: process.env.REDIS_TLS === 'true',
+  websocketAdapter: process.env.WEBSOCKET_REDIS_ADAPTER ?? 'true',
 }));
 
 export const supabaseConfig = registerAs('supabase', () => ({

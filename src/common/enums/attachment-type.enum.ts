@@ -1,0 +1,5 @@
+export enum AttachmentType {
+  PROOF_OF_DELIVERY = 'PROOF_OF_DELIVERY',
+  PICKUP_PHOTO = 'PICKUP_PHOTO',
+  OTHER = 'OTHER',
+}

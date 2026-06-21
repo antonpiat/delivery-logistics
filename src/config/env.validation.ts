@@ -14,6 +14,7 @@ export const envValidationSchema = Joi.object({
   REDIS_PORT: Joi.number().optional(),
   REDIS_PASSWORD: Joi.string().optional(),
   REDIS_TLS: Joi.string().valid('true', 'false').optional(),
+  WEBSOCKET_REDIS_ADAPTER: Joi.string().valid('true', 'false').default('true'),
   SUPABASE_URL: Joi.string().required(),
   SUPABASE_SERVICE_ROLE_KEY: Joi.string().required(),
   SUPABASE_STORAGE_BUCKET: Joi.string().default('delivery-assets'),

@@ -26,6 +26,12 @@ enum DriverAvailability {
   BUSY
 }
 
+enum AttachmentType {
+  PROOF_OF_DELIVERY
+  PICKUP_PHOTO
+  OTHER
+}
+
 model Company {
   id        String     @id @default(cuid())
   name      String
@@ -53,6 +59,7 @@ model User {
   driver                   Driver?
   shipments                Shipment[]     @relation("CustomerShipments")
   notifications            Notification[]
+  uploadedAttachments      ShipmentAttachment[]
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @updatedAt
 
@@ -97,6 +104,7 @@ model Shipment {
   deliveredAt     DateTime?
   locationLogs    LocationUpdate[]
   statusHistory   ShipmentStatusHistory[]
+  attachments     ShipmentAttachment[]
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
 
@@ -131,6 +139,23 @@ model ShipmentStatusHistory {
   changedAt  DateTime        @default(now())
 
   @@index([shipmentId])
+}
+
+model ShipmentAttachment {
+  id         String         @id @default(cuid())
+  shipmentId String
+  shipment   Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  uploadedBy String
+  user       User           @relation(fields: [uploadedBy], references: [id])
+  type       AttachmentType @default(OTHER)
+  path       String         @unique
+  fileName   String
+  mimeType   String
+  size       Int
+  createdAt  DateTime       @default(now())
+
+  @@index([shipmentId])
+  @@index([uploadedBy])
 }
 
 model Notification {
