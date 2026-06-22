@@ -47,9 +47,7 @@ describe('AnalyticsService', () => {
       { availability: 'AVAILABLE', _count: { id: 2 } },
     ]);
     prisma.driver.count.mockResolvedValue(2);
-    prisma.shipment.count
-      .mockResolvedValueOnce(4)
-      .mockResolvedValueOnce(2);
+    prisma.shipment.count.mockResolvedValueOnce(4).mockResolvedValueOnce(2);
     prisma.shipment.findMany.mockResolvedValue([
       {
         assignedAt: new Date('2026-06-19T10:00:00Z'),
@@ -81,7 +79,11 @@ describe('AnalyticsService', () => {
       {
         id: 'driver-1',
         availability: 'AVAILABLE',
-        user: { firstName: 'John', lastName: 'Driver', email: 'driver@leo.com' },
+        user: {
+          firstName: 'John',
+          lastName: 'Driver',
+          email: 'driver@leo.com',
+        },
       },
     ]);
 

@@ -5,12 +5,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ShipmentsService } from './shipments.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto';
+import { CursorPaginationQueryDto } from '@/common/utils/cursor-pagination-query.dto';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Roles } from '@/common/decorators/roles.decorator';
@@ -34,9 +36,12 @@ export class ShipmentsController {
 
   @Get()
   @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'List all company shipments (Admin)' })
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.shipmentsService.findByCompany(user.companyId!);
+  @ApiOperation({ summary: 'List company shipments with cursor pagination' })
+  findAll(
+    @CurrentUser() user: JwtPayload,
+    @Query() query: CursorPaginationQueryDto,
+  ) {
+    return this.shipmentsService.findByCompany(user.companyId!, query);
   }
 
   @Get('track/:trackingCode')

@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DriverAvailability, Prisma, ShipmentStatus } from '@prisma/client';
 import { PrismaService } from '@/database/prisma.service';
 

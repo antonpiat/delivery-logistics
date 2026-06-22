@@ -7,8 +7,7 @@ describe('Health (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeAll(async () => {
-    const setup = await createE2eApp();
-    app = setup.app;
+    app = await createE2eApp();
   });
 
   afterAll(async () => {

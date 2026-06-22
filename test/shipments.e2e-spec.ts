@@ -16,8 +16,7 @@ describe('Shipments (e2e)', () => {
   let shipmentId: string;
 
   beforeAll(async () => {
-    const setup = await createE2eApp();
-    app = setup.app;
+    app = await createE2eApp();
     prisma = app.get(PrismaService);
 
     const customer = await prisma.user.findUniqueOrThrow({
@@ -35,7 +34,9 @@ describe('Shipments (e2e)', () => {
 
   afterAll(async () => {
     if (shipmentId) {
-      await prisma.shipment.delete({ where: { id: shipmentId } }).catch(() => undefined);
+      await prisma.shipment
+        .delete({ where: { id: shipmentId } })
+        .catch(() => undefined);
     }
     await app.close();
   });

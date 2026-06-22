@@ -1,5 +1,5 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
 import { HttpExceptionFilter } from '@/common/filters/http-exception.filter';
 import { MailService } from '@/infrastructure/mail/mail.service';
@@ -9,10 +9,7 @@ import { mailServiceMock } from './mail.mock';
 import { notificationsServiceMock } from './notifications.mock';
 import { storageServiceMock } from './storage.mock';
 
-export async function createE2eApp(): Promise<{
-  app: INestApplication;
-  moduleFixture: TestingModule;
-}> {
+export async function createE2eApp(): Promise<INestApplication> {
   const moduleFixture = await Test.createTestingModule({
     imports: [AppModule],
   })
@@ -37,5 +34,5 @@ export async function createE2eApp(): Promise<{
   app.enableShutdownHooks();
   await app.init();
 
-  return { app, moduleFixture };
+  return app;
 }

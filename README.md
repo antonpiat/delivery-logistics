@@ -121,6 +121,55 @@ stateDiagram-v2
 
 Invalid jumps (e.g. `PENDING` → `DELIVERED`) are rejected automatically.
 
+### Pagination (infinite scroll)
+
+List endpoints return cursor-based pages — ideal for infinite scroll UIs:
+
+- `GET /shipments`
+- `GET /notifications`
+- `GET /drivers`
+
+**Query params**
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `limit` | `20` | Items per page (max 100) |
+| `cursor` | — | Pass `meta.nextCursor` from the previous response |
+
+**Response**
+```json
+{
+  "data": [ /* items */ ],
+  "meta": {
+    "limit": 20,
+    "hasMore": true,
+    "nextCursor": "eyJjcmVhdGVkQXQiOi..."
+  }
+}
+```
+
+**Infinite scroll example**
+```javascript
+let cursor = undefined;
+
+async function loadMore() {
+  const params = new URLSearchParams({ limit: '20' });
+  if (cursor) params.set('cursor', cursor);
+
+  const res = await fetch(`/api/v1/shipments?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const page = await res.json();
+
+  appendToList(page.data);
+  cursor = page.meta.nextCursor;
+
+  return page.meta.hasMore;
+}
+```
+
+Stop loading when `hasMore` is `false`.
+
 ### Notifications
 
 Customers and drivers receive updates by **email** and **real-time push** when shipment status changes.

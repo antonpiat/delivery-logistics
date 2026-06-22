@@ -1,6 +1,7 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DriversService } from './drivers.service';
+import { CursorPaginationQueryDto } from '@/common/utils/cursor-pagination-query.dto';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Roles } from '@/common/decorators/roles.decorator';
@@ -17,9 +18,12 @@ export class DriversController {
 
   @Get()
   @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'List company drivers (Admin)' })
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.driversService.findByCompany(user.companyId!);
+  @ApiOperation({ summary: 'List company drivers with cursor pagination' })
+  findAll(
+    @CurrentUser() user: JwtPayload,
+    @Query() query: CursorPaginationQueryDto,
+  ) {
+    return this.driversService.findByCompany(user.companyId!, query);
   }
 
   @Get(':id')

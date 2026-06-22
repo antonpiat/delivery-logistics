@@ -97,7 +97,9 @@ export class ShipmentAttachmentsService {
     }
 
     await this.storageService.remove(attachment.path);
-    await this.prisma.shipmentAttachment.delete({ where: { id: attachment.id } });
+    await this.prisma.shipmentAttachment.delete({
+      where: { id: attachment.id },
+    });
 
     return { message: 'Attachment deleted' };
   }
@@ -134,12 +136,18 @@ export class ShipmentAttachmentsService {
   }
 
   private async assertCanUpload(
-    shipment: { companyId: string; driverId: string | null; driver: { userId: string } | null },
+    shipment: {
+      companyId: string;
+      driverId: string | null;
+      driver: { userId: string } | null;
+    },
     actor: UploadActor,
   ): Promise<void> {
     if (actor.role === Role.ADMIN) {
       if (actor.companyId && shipment.companyId !== actor.companyId) {
-        throw new ForbiddenException('Shipment does not belong to your company');
+        throw new ForbiddenException(
+          'Shipment does not belong to your company',
+        );
       }
       return;
     }
@@ -166,7 +174,9 @@ export class ShipmentAttachmentsService {
   ): Promise<void> {
     if (actor.role === Role.ADMIN) {
       if (actor.companyId && shipment.companyId !== actor.companyId) {
-        throw new ForbiddenException('Shipment does not belong to your company');
+        throw new ForbiddenException(
+          'Shipment does not belong to your company',
+        );
       }
       return;
     }
@@ -175,10 +185,15 @@ export class ShipmentAttachmentsService {
       return;
     }
 
-    if (actor.role === Role.DRIVER && shipment.driver?.userId === actor.userId) {
+    if (
+      actor.role === Role.DRIVER &&
+      shipment.driver?.userId === actor.userId
+    ) {
       return;
     }
 
-    throw new ForbiddenException('You cannot view attachments for this shipment');
+    throw new ForbiddenException(
+      'You cannot view attachments for this shipment',
+    );
   }
 }

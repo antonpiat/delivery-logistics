@@ -27,7 +27,9 @@ export class NotificationsGateway {
 
   emitToUser(userId: string, payload: PushNotificationPayload): void {
     this.server.to(this.userRoom(userId)).emit('notification', payload);
-    this.logger.log(`Push notification sent to user ${userId} (${payload.type})`);
+    this.logger.log(
+      `Push notification sent to user ${userId} (${payload.type})`,
+    );
   }
 
   @SubscribeMessage('join')

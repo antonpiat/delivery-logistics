@@ -7,5 +7,8 @@ export const notificationsServiceMock = {
     read: false,
     createdAt: new Date(),
   }),
-  findByUser: jest.fn().mockResolvedValue([]),
+  findByUser: jest.fn().mockResolvedValue({
+    data: [],
+    meta: { limit: 20, hasMore: false, nextCursor: null },
+  }),
 };
