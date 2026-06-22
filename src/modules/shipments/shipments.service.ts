@@ -17,6 +17,11 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto';
 import {
+  buildCursorPaginatedResult,
+  CursorPaginationParams,
+  getPaginationArgs,
+} from '@/common/utils/pagination.util';
+import {
   assertDriverTransition,
   assertTransitionContext,
   assertValidTransition,
@@ -51,19 +56,32 @@ export class ShipmentsService {
     });
   }
 
-  findByCompany(companyId: string): Promise<Shipment[]> {
-    return this.prisma.shipment.findMany({
-      where: { companyId },
-      include: {
-        customer: { select: { email: true, firstName: true, lastName: true } },
-        driver: {
-          include: {
-            user: { select: { email: true, firstName: true, lastName: true } },
+  findByCompany(companyId: string, pagination: CursorPaginationParams = {}) {
+    const { limit, take, cursorFilter, orderBy } =
+      getPaginationArgs(pagination);
+
+    return this.prisma.shipment
+      .findMany({
+        where: {
+          companyId,
+          ...(cursorFilter ?? {}),
+        },
+        include: {
+          customer: {
+            select: { email: true, firstName: true, lastName: true },
+          },
+          driver: {
+            include: {
+              user: {
+                select: { email: true, firstName: true, lastName: true },
+              },
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy,
+        take,
+      })
+      .then((items) => buildCursorPaginatedResult(items, limit));
   }
 
   async findById(id: string): Promise<Shipment> {
@@ -124,10 +142,19 @@ export class ShipmentsService {
     });
 
     if (actor.role === Role.DRIVER) {
-      await this.assertDriverCanUpdate(existing, actor.userId, currentStatus, nextStatus);
+      await this.assertDriverCanUpdate(
+        existing,
+        actor.userId,
+        currentStatus,
+        nextStatus,
+      );
     }
 
-    const driverId = this.resolveDriverId(nextStatus, dto.driverId, existing.driverId);
+    const driverId = this.resolveDriverId(
+      nextStatus,
+      dto.driverId,
+      existing.driverId,
+    );
 
     if (dto.driverId) {
       await this.assertDriverBelongsToCompany(dto.driverId, existing.companyId);

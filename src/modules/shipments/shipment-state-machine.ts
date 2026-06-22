@@ -68,9 +68,7 @@ export function assertDriverTransition(
 ): void {
   const allowed = DRIVER_ALLOWED_TRANSITIONS[from];
   if (!allowed.includes(to)) {
-    throw new Error(
-      `Drivers cannot transition shipment from ${from} to ${to}`,
-    );
+    throw new Error(`Drivers cannot transition shipment from ${from} to ${to}`);
   }
 }
 
@@ -88,6 +86,8 @@ export function assertTransitionContext(
     (to === ShipmentStatus.IN_TRANSIT || to === ShipmentStatus.DELIVERED) &&
     !resolvedDriverId
   ) {
-    throw new Error(`A driver must be assigned before marking shipment as ${to}`);
+    throw new Error(
+      `A driver must be assigned before marking shipment as ${to}`,
+    );
   }
 }

@@ -61,7 +61,11 @@ export class AuthService {
       emailVerificationExpires: verificationExpires,
     });
 
-    await this.sendVerificationOrFail(dto.email, verificationToken);
+    await this.sendEmailOrFail(
+      () =>
+        this.mailService.sendVerificationEmail(dto.email, verificationToken),
+      'Unable to send verification email. Please try again later.',
+    );
 
     return {
       message:
@@ -140,7 +144,10 @@ export class AuthService {
       hashToken(verificationToken),
       verificationExpires,
     );
-    await this.sendVerificationOrFail(email, verificationToken);
+    await this.sendEmailOrFail(
+      () => this.mailService.sendVerificationEmail(email, verificationToken),
+      'Unable to send verification email. Please try again later.',
+    );
 
     return this.genericEmailSentMessage();
   }
@@ -160,7 +167,10 @@ export class AuthService {
           hashToken(resetToken),
           resetExpires,
         );
-        await this.sendPasswordResetOrFail(email, resetToken);
+        await this.sendEmailOrFail(
+          () => this.mailService.sendPasswordResetEmail(email, resetToken),
+          'Unable to send password reset email. Please try again later.',
+        );
       }
     }
 
@@ -202,29 +212,14 @@ export class AuthService {
     };
   }
 
-  private async sendVerificationOrFail(
-    email: string,
-    token: string,
+  private async sendEmailOrFail(
+    send: () => Promise<void>,
+    message: string,
   ): Promise<void> {
     try {
-      await this.mailService.sendVerificationEmail(email, token);
+      await send();
     } catch {
-      throw new ServiceUnavailableException(
-        'Unable to send verification email. Please try again later.',
-      );
-    }
-  }
-
-  private async sendPasswordResetOrFail(
-    email: string,
-    token: string,
-  ): Promise<void> {
-    try {
-      await this.mailService.sendPasswordResetEmail(email, token);
-    } catch {
-      throw new ServiceUnavailableException(
-        'Unable to send password reset email. Please try again later.',
-      );
+      throw new ServiceUnavailableException(message);
     }
   }
 

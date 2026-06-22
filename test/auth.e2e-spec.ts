@@ -12,8 +12,7 @@ describe('Auth (e2e)', () => {
   const testEmail = `e2e-auth-${Date.now()}@leo.com`;
 
   beforeAll(async () => {
-    const setup = await createE2eApp();
-    app = setup.app;
+    app = await createE2eApp();
     prisma = app.get(PrismaService);
   });
 

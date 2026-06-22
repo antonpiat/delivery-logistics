@@ -5,6 +5,11 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/database/prisma.service';
 import { NOTIFICATIONS_QUEUE } from '@/infrastructure/queue/queue.constants';
 import { NotificationJobData } from './notifications.processor';
+import {
+  buildCursorPaginatedResult,
+  CursorPaginationParams,
+  getPaginationArgs,
+} from '@/common/utils/pagination.util';
 
 @Injectable()
 export class NotificationsService {
@@ -33,10 +38,19 @@ export class NotificationsService {
     return notification;
   }
 
-  findByUser(userId: string) {
-    return this.prisma.notification.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
+  findByUser(userId: string, pagination: CursorPaginationParams = {}) {
+    const { limit, take, cursorFilter, orderBy } =
+      getPaginationArgs(pagination);
+
+    return this.prisma.notification
+      .findMany({
+        where: {
+          userId,
+          ...(cursorFilter ?? {}),
+        },
+        orderBy,
+        take,
+      })
+      .then((items) => buildCursorPaginatedResult(items, limit));
   }
 }

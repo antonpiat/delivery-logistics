@@ -7,7 +7,3 @@ export function generateToken(): string {
 export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
-
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}

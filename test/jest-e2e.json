@@ -4,6 +4,7 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "testTimeout": 30000,
+  "maxWorkers": 1,
   "moduleNameMapper": {
     "^@/(.*)$": "<rootDir>/../src/$1"
   },

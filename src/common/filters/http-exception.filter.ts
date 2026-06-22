@@ -36,8 +36,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (typeof exceptionResponse === 'string') {
       body.message = exceptionResponse;
     } else if (typeof exceptionResponse === 'object' && exceptionResponse) {
-      const { message, error: _error, statusCode: _status, ...rest } =
-        exceptionResponse as Record<string, unknown>;
+      const {
+        message,
+        error: _error,
+        statusCode: _status,
+        ...rest
+      } = exceptionResponse as Record<string, unknown>;
       body.message = message ?? 'Internal server error';
       Object.assign(body, rest);
     } else {

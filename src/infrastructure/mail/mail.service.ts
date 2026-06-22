@@ -28,7 +28,9 @@ export class MailService implements OnModuleInit {
       });
       this.logger.log('Mail transporter initialized');
     } else {
-      this.logger.warn('Mail credentials not configured — email sending disabled');
+      this.logger.warn(
+        'Mail credentials not configured — email sending disabled',
+      );
     }
   }
 

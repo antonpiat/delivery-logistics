@@ -71,16 +71,11 @@ export class ShipmentAttachmentsController {
       throw new BadRequestException('File is required');
     }
 
-    return this.shipmentAttachmentsService.upload(
-      shipmentId,
-      file,
-      dto.type,
-      {
-        userId: user.sub,
-        role: user.role as Role,
-        companyId: user.companyId,
-      },
-    );
+    return this.shipmentAttachmentsService.upload(shipmentId, file, dto.type, {
+      userId: user.sub,
+      role: user.role as Role,
+      companyId: user.companyId,
+    });
   }
 
   @Get()

@@ -1,18 +1,33 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Driver } from '@prisma/client';
 import { PrismaService } from '@/database/prisma.service';
+import {
+  buildCursorPaginatedResult,
+  CursorPaginationParams,
+  getPaginationArgs,
+} from '@/common/utils/pagination.util';
 
 @Injectable()
 export class DriversService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByCompany(companyId: string): Promise<Driver[]> {
-    return this.prisma.driver.findMany({
-      where: { companyId },
-      include: {
-        user: { select: { email: true, firstName: true, lastName: true } },
-      },
-    });
+  findByCompany(companyId: string, pagination: CursorPaginationParams = {}) {
+    const { limit, take, cursorFilter, orderBy } =
+      getPaginationArgs(pagination);
+
+    return this.prisma.driver
+      .findMany({
+        where: {
+          companyId,
+          ...(cursorFilter ?? {}),
+        },
+        include: {
+          user: { select: { email: true, firstName: true, lastName: true } },
+        },
+        orderBy,
+        take,
+      })
+      .then((items) => buildCursorPaginatedResult(items, limit));
   }
 
   async findById(id: string): Promise<Driver> {

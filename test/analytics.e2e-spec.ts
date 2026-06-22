@@ -9,8 +9,7 @@ describe('Analytics (e2e)', () => {
   let adminToken: string;
 
   beforeAll(async () => {
-    const setup = await createE2eApp();
-    app = setup.app;
+    app = await createE2eApp();
     adminToken = await loginAs(app, 'admin@leo.com');
   });
 
