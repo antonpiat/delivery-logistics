@@ -366,8 +366,3 @@ flowchart TB
 </details>
 
 ---
-
-## Support
-
-- Full request/response schemas: **[Swagger UI → /docs](http://localhost:3000/docs)**
-- All protected routes require a valid JWT unless noted otherwise
