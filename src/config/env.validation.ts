@@ -20,7 +20,6 @@ export const envValidationSchema = Joi.object({
   SUPABASE_STORAGE_BUCKET: Joi.string().default('delivery-assets'),
   CORS_ORIGIN: Joi.string().default('http://localhost:3000'),
   APP_URL: Joi.string().default('http://localhost:3000'),
-  FRONTEND_URL: Joi.string().optional(),
   MAIL_HOST: Joi.string().optional(),
   MAIL_PORT: Joi.number().default(2525),
   MAIL_USER: Joi.string().optional(),

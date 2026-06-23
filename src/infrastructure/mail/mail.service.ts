@@ -109,21 +109,17 @@ export class MailService implements OnModuleInit {
   }
 
   private buildActionUrl(action: string, token: string): string {
-    const frontendUrl = this.configService.get<string>('app.frontendUrl');
+    const clientOrigin = this.configService.get<string>('app.corsOrigin');
 
-    if (frontendUrl) {
-      return `${frontendUrl.replace(/\/$/, '')}/${action}?token=${token}`;
+    if (clientOrigin && clientOrigin !== '*') {
+      return `${clientOrigin.replace(/\/$/, '')}/${action}?token=${token}`;
     }
 
-    if (action === 'verify-email') {
-      return `${this.buildApiUrl('/auth/verify-email')}?token=${token}`;
-    }
-
-    const apiPrefix =
-      this.configService.get<string>('app.apiPrefix') ?? 'api/v1';
-    const appUrl =
-      this.configService.get<string>('app.url') ?? 'http://localhost:3000';
-    return `${appUrl}/${apiPrefix}/auth/reset-password?token=${token}`;
+    const path =
+      action === 'verify-email'
+        ? '/auth/verify-email'
+        : '/auth/reset-password';
+    return `${this.buildApiUrl(path)}?token=${token}`;
   }
 
   private buildApiUrl(path: string): string {

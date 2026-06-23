@@ -6,7 +6,6 @@ export default registerAs('app', () => ({
   apiPrefix: process.env.API_PREFIX ?? 'api/v1',
   corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
   url: process.env.APP_URL ?? 'http://localhost:3000',
-  frontendUrl: process.env.FRONTEND_URL,
 }));
 
 export const jwtConfig = registerAs('jwt', () => ({

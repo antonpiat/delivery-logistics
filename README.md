@@ -317,7 +317,8 @@ pnpm start:dev
 | `REDIS_URL` | Upstash Redis (queues + WebSocket scaling) |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Storage uploads |
 | `MAIL_*` | Transactional email (Mailtrap for dev) |
-| `FRONTEND_URL` | Links in verification & reset emails |
+| `CORS_ORIGIN` | Frontend app URL (CORS + email verification/reset links) |
+| `APP_URL` | Public API URL |
 | `WEBSOCKET_REDIS_ADAPTER` | `true` (default) — sync WebSockets across instances |
 
 **Scripts**
