@@ -296,9 +296,6 @@ Returns database and Redis status — useful for uptime monitoring.
 
 ## Developer setup
 
-<details>
-<summary><strong>Run the API locally</strong></summary>
-
 **Requirements:** Node.js 20+, pnpm, [Supabase](https://supabase.com) project, [Upstash](https://upstash.com) Redis
 
 ```bash
@@ -363,7 +360,5 @@ flowchart TB
   REST --> Storage
   REST --> Mail
 ```
-
-</details>
 
 ---
