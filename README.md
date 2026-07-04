@@ -38,7 +38,7 @@ flowchart LR
 Create shipments, assign drivers, upload documents, and view company analytics.
 
 ### Driver
-See assigned routes, update delivery status, share live location, and upload proof-of-delivery photos.
+See assigned routes, update delivery status, share live location, and upload proof of delivery photos.
 
 ### Customer
 Track shipments by code, receive status emails, and view delivery attachments.
